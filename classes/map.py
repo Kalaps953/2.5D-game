@@ -25,3 +25,5 @@ class Map:
             d_s = angles[i][1]
             p_s = Pos(math.cos(a_s) * d_s, math.sin(a_s) * d_s)
             new_lines.append(Line(p_s, p_s + Pos(math.cos(a_e) * d_e, math.sin(a_e) * d_e)))
+
+        return new_lines
