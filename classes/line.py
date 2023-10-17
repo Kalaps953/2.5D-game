@@ -17,7 +17,7 @@ class Line:
         d = (self.start - self.end) ** 2
         return math.sqrt(d.x + d.y)
 
-    def normalize(self):
+    def get_normalized(self):
         self.end -= self.start
         self.start -= self.start
         self.end /= self.get_distance()
@@ -50,7 +50,7 @@ class Line:
                 pey = Pos(self.end.x, line.end.y)
             k = line.end - line.start
             k = Line(Pos(0, 0), k)
-            k = k.normalize()
+            k = k.get_normalized()
             if Line(self.start, psx).get_distance() <= self.get_distance() or Line(self.start, psy).get_distance() < self.get_distance():
                 if (line.end.y >= psx.y >= line.start.y or line.start.y >= psx.y >= line.end.y) and \
                         (line.end.x >= psy.x >= line.start.x or line.start.x >= psy.x >= line.end.x):
@@ -64,3 +64,7 @@ class Line:
         if not r:
             return line.collide(self, r=True)
         return False
+
+    def __add__(self, other):
+        if isinstance(other, Pos):
+            return Line(self.start + other, self.end + other)
