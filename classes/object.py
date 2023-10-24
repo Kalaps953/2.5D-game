@@ -7,10 +7,10 @@ class Pos:
         self.y = y
 
     def get_arr(self):
-        return [self.x, self.y]
+        return [int(self.x), int(self.y)]
 
     def draw_on_map(self, display: pg.Surface, color):
-        pg.draw.circle(display, color, self.get_arr(), 5)
+        pg.draw.circle(display, color, self.get_arr(), 2)
 
     def __str__(self):
         return f'x={self.x}; y={self.y}'

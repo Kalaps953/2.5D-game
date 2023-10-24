@@ -11,60 +11,35 @@ class Line:
         self.id = id
 
     def __str__(self):
-        return f's= ({self.start});; e= ({self.end})'
+        return f's= ({self.start});; e= ({self.end});'
 
     def get_distance(self):
         d = (self.start - self.end) ** 2
         return math.sqrt(d.x + d.y)
 
     def get_normalized(self):
-        self.end -= self.start
-        self.start -= self.start
-        self.end /= self.get_distance()
-        return self.end
+        return (self.end - self.start) / self.get_distance()
 
     def draw_on_map(self, display: pg.Surface):
+        print(self)
         pg.draw.line(display, self.color, self.start.get_arr(), self.end.get_arr())
-
-    def collide(self, line, r=False):
-        print(self.id)
-        if self.start > line.start > self.end or self.start > line.end > self.end or \
-                self.start < line.start < self.end or self.start < line.end < self.end:
-            k = self.end - self.start
-            k = Line(Pos(0, 0), k)
-            k = k.end / k.get_distance()
-            if k.x != 0:
-                kx = k.y / k.x
-                psx = Pos(line.start.x, kx * line.start.x)
-                pex = Pos(line.end.x, kx * line.end.x)
-            else:
-                psx = Pos(line.start.x, self.start.y)
-                pex = Pos(line.end.x, self.end.y)
-
-            if k.y != 0:
-                ky = k.x / k.y
-                psy = Pos(ky * line.start.y, line.start.y)
-                pey = Pos(ky * line.end.y, line.end.y)
-            else:
-                psy = Pos(self.start.x, line.start.y)
-                pey = Pos(self.end.x, line.end.y)
-            k = line.end - line.start
-            k = Line(Pos(0, 0), k)
-            k = k.get_normalized()
-            if Line(self.start, psx).get_distance() <= self.get_distance() or Line(self.start, psy).get_distance() < self.get_distance():
-                if (line.end.y >= psx.y >= line.start.y or line.start.y >= psx.y >= line.end.y) and \
-                        (line.end.x >= psy.x >= line.start.x or line.start.x >= psy.x >= line.end.x):
-                    return [True, Pos(psx.y * ky, psx.y), Pos(psy.x, psy.x * kx), Pos(psx.y * ky, psy.x * kx)]
-
-            if Line(self.start, pex).get_distance() <= self.get_distance() or Line(self.start, pey).get_distance() < self.get_distance():
-                if (line.end.y >= pex.y >= line.start.y or line.start.y >= pex.y >= line.end.y) and \
-                        (line.end.x >= pey.x >= line.start.x or line.start.x >= pey.x >= line.end.x):
-                    return [True, Pos(ky * pex.y, pex.y), Pos(pey.x, kx * pey.x), Pos(pex.y * ky, pey.x * kx)]
-
-        if not r:
-            return line.collide(self, r=True)
-        return False
 
     def __add__(self, other):
         if isinstance(other, Pos):
             return Line(self.start + other, self.end + other)
+
+    def get_angle_of_sp(self, pos):
+        if Line(pos, self.start).get_distance() != 0:
+            norm = Line(pos, self.start).get_normalized()
+            angle = math.asin(norm.y)
+            if norm.x < 0:
+                return math.pi / 2 - angle + math.pi / 2
+            return angle
+        return 0
+
+    def get_angle_of_ep(self, pos):
+        norm = Line(pos, self.end).get_normalized()
+        angle = math.asin(norm.y)
+        if norm.x < 0:
+            return math.pi / 2 - angle + math.pi / 2
+        return angle
