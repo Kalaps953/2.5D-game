@@ -1,4 +1,3 @@
-from classes.line import *
 from classes.object import *
 from config import *
 import math
