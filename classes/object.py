@@ -113,8 +113,7 @@ class Line:
         angle = self.end.get_angle(self.start)
         l1 = self.get_rotated(-angle, self.start)
         li = line.get_rotated(-angle, self.start)
-        k = l1.start.y * li.get_normalized().x + li.start.x
-        print(k)
+        k = l1.start.y - li.start.y * li.get_normalized().x + li.start.x
         if l1.start.x >= k >= l1.end.x or l1.end.x >= k >= l1.start.x:
             return Pos(k, l1.start.y).get_rotated(angle, self.start)
         if r:
