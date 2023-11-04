@@ -4,9 +4,8 @@ import pygame as pg
 
 
 class Map:
-    def __init__(self, lines: list, camera):
+    def __init__(self, lines: list):
         self.lines = lines
-        self.camera = camera
 
     def draw_map(self, display: pg.Surface):
         for i in self.lines:
@@ -16,4 +15,4 @@ class Map:
         lines = []
         for i in self.lines:
             lines.append(i.get_rotated(angle, pos))
-        return Map(lines, self.camera)
+        return Map(lines)

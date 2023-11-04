@@ -102,7 +102,6 @@ class Line:
         return (self.end - self.start) / self.get_distance()
 
     def draw_on_map(self, display: pg.Surface):
-        print(self)
         pg.draw.line(display, self.color, self.start.get_arr(), self.end.get_arr())
 
     def __add__(self, other):
@@ -113,7 +112,9 @@ class Line:
         angle = self.end.get_angle(self.start)
         l1 = self.get_rotated(-angle, self.start)
         li = line.get_rotated(-angle, self.start)
-        k = l1.start.y - li.start.y * li.get_normalized().x + li.start.x
+        norm = li.get_normalized()
+        k = (l1.start.y - li.start.y) * (norm.x / norm.y) + li.start.x
+        print(k)
         if l1.start.x >= k >= l1.end.x or l1.end.x >= k >= l1.start.x:
             return Pos(k, l1.start.y).get_rotated(angle, self.start)
         if r:
