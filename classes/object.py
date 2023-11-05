@@ -47,11 +47,11 @@ class Pos:
     # **
     def __pow__(self, power, modulo=None):
         if isinstance(power, float):
-            return Pos(self.x ** power, self.y ** power)
+            return Pos(math.pow(self.x,  power), math.pow(self.y, power))
         if isinstance(power, int):
-            return Pos(self.x ** power, self.y ** power)
+            return Pos(math.pow(self.x,  power), math.pow(self.y, power))
         elif isinstance(power, Pos):
-            return Pos(self.x ** power.x, self.y ** power.y)
+            return Pos(math.pow(self.x, power.x), math.pow(self.y, power.y))
 
     # <
     def __lt__(self, other):
@@ -93,8 +93,11 @@ class Line:
         return f's= ({self.start});; e= ({self.end});'
 
     def get_distance(self):
-        d = (self.start - self.end) ** 2
-        return math.sqrt(d.x + d.y)
+        dx = self.start.x - self.end.x
+        dx = math.pow(dx, 2)
+        dy = self.start.y - self.end.y
+        dy = math.pow(dy, 2)
+        return math.sqrt(dx + dy)
 
     def get_normalized(self):
         d = self.get_distance()
@@ -118,13 +121,14 @@ class Line:
             angle = self.end.get_angle(self.start)
             l1 = self.get_rotated(-angle, self.start)
             li = line.get_rotated(-angle, self.start)
-            norm = li.get_normalized()
-            if norm.y != 0:
-                k = (l1.start.y - li.start.y) * (norm.x / norm.y) + li.start.x
-            else:
-                k = l1.start.y
-            if (li.start.y <= l1.start.y <= li.end.y or li.end.y <= l1.start.y <= li.start.y) and (l1.start.x >= k >= l1.end.x or l1.end.x >= k >= l1.start.x):
-                return Pos(k, l1.start.y).get_rotated(angle, self.start)
+            if li.start.y <= l1.start.y <= li.end.y or li.end.y <= l1.start.y <= li.start.y:
+                norm = li.get_normalized()
+                if norm.y != 0:
+                    k = (l1.start.y - li.start.y) * (norm.x / norm.y) + li.start.x
+                else:
+                    k = l1.start.y
+                if l1.start.x >= k >= l1.end.x or l1.end.x >= k >= l1.start.x:
+                    return Pos(k, l1.start.y).get_rotated(angle, self.start)
         if r:
             return line.collide(self, False)
         return False

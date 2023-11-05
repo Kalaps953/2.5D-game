@@ -5,7 +5,7 @@ import pygame as pg
 
 
 class Player:
-    def __init__(self, pos: Pos, angle: float=0, fov: int=90, dov: int = 255, aol: int = 100, dof: float = 10):
+    def __init__(self, pos: Pos, angle: float = 0, fov: int = 90, dov: int = 255, aol: int = 100, dof: float = 10):
         self._pos = pos
         # Угол камеры
         self._angle = angle
