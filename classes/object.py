@@ -24,7 +24,7 @@ class Pos:
     def get_rotated(self, angle: float, pos):
         angle = self.get_angle(pos) + angle
         d = Line(pos, self).get_distance()
-        return pos + Pos(round(math.cos(angle) * d), round(math.sin(angle) * d))
+        return pos + Pos(math.cos(angle) * d, math.sin(angle) * d)
 
     def __str__(self):
         return f'x={self.x}; y={self.y}'
@@ -107,7 +107,11 @@ class Line:
 
     def __add__(self, other):
         if isinstance(other, Pos):
-            return Line(self.start + other, self.end + other)
+            return Line(self.start + other, self.end + other, self.id, self.color)
+
+    def __sub__(self, other):
+        if isinstance(other, Pos):
+            return Line(self.start - other, self.end - other, self.id, self.color)
 
     def collide(self, line, r=True):
         if line.start < self.start < line.end or line.end < self.start < line.start or line.start < self.end < line.end or line.end < self.end < line.start:
@@ -127,4 +131,4 @@ class Line:
 
     def get_rotated(self, angle: float, pos: Pos):
         return Line(self.start.get_rotated(angle, pos),
-                    self.end.get_rotated(angle, pos))
+                    self.end.get_rotated(angle, pos), id=self.id, color=self.color)
