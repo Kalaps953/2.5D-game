@@ -94,7 +94,7 @@ class Line:
 
     def get_distance(self):
         d = (self.start - self.end) ** 2
-        return (d.x + d.y) ** 0.5
+        return math.sqrt(d.x + d.y)
 
     def get_normalized(self):
         d = self.get_distance()
