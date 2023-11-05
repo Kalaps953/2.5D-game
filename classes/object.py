@@ -15,13 +15,11 @@ class Pos:
 
     def get_angle(self, pos):
         l = Line(pos, self)
-        if l.get_distance() > 0:
-            l = l.get_normalized()
-            angle = math.asin(l.y)
-            if l.x < 0:
-                return math.pi / 2 - angle + math.pi / 2
-            return angle
-        return 0
+        l = l.get_normalized()
+        angle = math.asin(l.y)
+        if l.x < 0:
+            return math.pi / 2 - angle + math.pi / 2
+        return angle
 
     def get_rotated(self, angle: float, pos):
         angle = self.get_angle(pos) + angle
@@ -85,7 +83,7 @@ class Pos:
 
 
 class Line:
-    def __init__(self, pos1: Pos, pos2: Pos, id=1, color: list=[0, 0, 0]):
+    def __init__(self, pos1: Pos, pos2: Pos, id = 1, color: list = [0, 0, 0]):
         self.start = pos1
         self.end = pos2
         self.color = color
@@ -96,10 +94,13 @@ class Line:
 
     def get_distance(self):
         d = (self.start - self.end) ** 2
-        return math.sqrt(d.x + d.y)
+        return (d.x + d.y) ** 0.5
 
     def get_normalized(self):
-        return (self.end - self.start) / self.get_distance()
+        d = self.get_distance()
+        if d != 0:
+            return (self.end - self.start) / self.get_distance()
+        return Pos(0, 0)
 
     def draw_on_map(self, display: pg.Surface):
         pg.draw.line(display, self.color, self.start.get_arr(), self.end.get_arr())
@@ -109,14 +110,17 @@ class Line:
             return Line(self.start + other, self.end + other)
 
     def collide(self, line, r=True):
-        angle = self.end.get_angle(self.start)
-        l1 = self.get_rotated(-angle, self.start)
-        li = line.get_rotated(-angle, self.start)
-        norm = li.get_normalized()
-        k = (l1.start.y - li.start.y) * (norm.x / norm.y) + li.start.x
-        print(k)
-        if l1.start.x >= k >= l1.end.x or l1.end.x >= k >= l1.start.x:
-            return Pos(k, l1.start.y).get_rotated(angle, self.start)
+        if line.start < self.start < line.end or line.end < self.start < line.start or line.start < self.end < line.end or line.end < self.end < line.start:
+            angle = self.end.get_angle(self.start)
+            l1 = self.get_rotated(-angle, self.start)
+            li = line.get_rotated(-angle, self.start)
+            norm = li.get_normalized()
+            if norm.y != 0:
+                k = (l1.start.y - li.start.y) * (norm.x / norm.y) + li.start.x
+            else:
+                k = l1.start.y
+            if (li.start.y <= l1.start.y <= li.end.y or li.end.y <= l1.start.y <= li.start.y) and (l1.start.x >= k >= l1.end.x or l1.end.x >= k >= l1.start.x):
+                return Pos(k, l1.start.y).get_rotated(angle, self.start)
         if r:
             return line.collide(self, False)
         return False

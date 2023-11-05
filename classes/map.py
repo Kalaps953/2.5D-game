@@ -1,4 +1,3 @@
-from classes.camera import *
 from classes.object import *
 import pygame as pg
 
