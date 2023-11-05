@@ -67,7 +67,7 @@ class Player:
         step = WIDTH / self.aol
         for i in self.lines:
             max_distance = i.get_distance()
-            da = 255 / (max_distance + self.dof)
+            da = 255 / max_distance
             distances = []
             for j in map.lines:
                 p = i.collide(j)
