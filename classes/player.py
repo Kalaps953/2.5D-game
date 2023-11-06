@@ -5,7 +5,7 @@ import pygame as pg
 
 
 class Player:
-    def __init__(self, pos: Pos, angle: float = 0, fov: int = 90, dov: int = 255, aol: int = 100, dof: float = 10):
+    def __init__(self, pos: Pos, angle: float = 0, fov: int = 120, dov: int = 255, aol: int = 100, dof: float = 10):
         self._pos = pos
         # Угол камеры
         self._angle = angle
@@ -50,12 +50,12 @@ class Player:
         for i in range(-self.aol // 2, self.aol // 2):
             st = self.fov / self.aol
             a = st * i
-            c = math.cos(a)
-            k = math.sin(a) / math.cos(a)
+            c = math.cos(a + self._angle)
+            s = math.sin(a + self._angle)
+            k = s / c
             lines.append(
-                Line(self._pos + Pos(0, k * c * self.dof), Pos(math.cos(a) * self.dov, math.sin(a) * self.dov) + self._pos,
+                Line(self._pos + Pos(0, k * c * self.dof), Pos(c * self.dov, s * self.dov) + self._pos,
                      color=[0, 0, 255]))
-            lines[-1] = lines[-1].get_rotated(self._angle, self._pos)
         return lines
 
     def draw_lines(self, display: pg.Surface):
@@ -72,7 +72,8 @@ class Player:
             for j in map.lines:
                 p = i.collide(j)
                 if p is not False:
-                    distances.append(Line(self.pos, p).get_distance())
+                    l = Line(self.pos, p)
+                    distances.append(l.get_distance())
                     if distances[-1] > max_distance:
                         distances[-1] = max_distance
                     if distances[-1] <= 0:

@@ -15,14 +15,22 @@ class Pos:
 
     def get_angle(self, pos):
         l = Line(pos, self)
-        l = l.get_normalized()
-        angle = math.asin(l.y)
-        if l.x < 0:
+        d = l.get_distance()
+        if d > 0:
+            n = (l.end.y - l.start.y) / l.get_distance()
+        else:
+            n = 0
+        angle = math.asin(n)
+        if l.end.x - l.start.x < 0:
             return math.pi / 2 - angle + math.pi / 2
         return angle
 
-    def get_rotated(self, angle: float, pos):
+    def get_rotated_on(self, angle: float, pos):
         angle = self.get_angle(pos) + angle
+        d = Line(pos, self).get_distance()
+        return pos + Pos(math.cos(angle) * d, math.sin(angle) * d)
+
+    def get_rotated_to(self, angle: float, pos):
         d = Line(pos, self).get_distance()
         return pos + Pos(math.cos(angle) * d, math.sin(angle) * d)
 
@@ -83,7 +91,7 @@ class Pos:
 
 
 class Line:
-    def __init__(self, pos1: Pos, pos2: Pos, id = 1, color: list = [0, 0, 0]):
+    def __init__(self, pos1: Pos, pos2: Pos, id=1, color: list = [0, 0, 0]):
         self.start = pos1
         self.end = pos2
         self.color = color
@@ -119,8 +127,8 @@ class Line:
     def collide(self, line, r=True):
         if line.start < self.start < line.end or line.end < self.start < line.start or line.start < self.end < line.end or line.end < self.end < line.start:
             angle = self.end.get_angle(self.start)
-            l1 = self.get_rotated(-angle, self.start)
-            li = line.get_rotated(-angle, self.start)
+            l1 = self.get_rotated_to(0, self.start)
+            li = line.get_rotated_on(-angle, self.start)
             if li.start.y <= l1.start.y <= li.end.y or li.end.y <= l1.start.y <= li.start.y:
                 norm = li.get_normalized()
                 if norm.y != 0:
@@ -128,11 +136,14 @@ class Line:
                 else:
                     k = l1.start.y
                 if l1.start.x >= k >= l1.end.x or l1.end.x >= k >= l1.start.x:
-                    return Pos(k, l1.start.y).get_rotated(angle, self.start)
+                    return Pos(k, l1.start.y).get_rotated_on(angle, self.start)
         if r:
             return line.collide(self, False)
         return False
 
-    def get_rotated(self, angle: float, pos: Pos):
-        return Line(self.start.get_rotated(angle, pos),
-                    self.end.get_rotated(angle, pos), id=self.id, color=self.color)
+    def get_rotated_on(self, angle: float, pos: Pos):
+        return Line(self.start.get_rotated_on(angle, pos),
+                    self.end.get_rotated_on(angle, pos), id=self.id, color=self.color)
+
+    def get_rotated_to(self, angle: float, pos: Pos):
+        return Line(self.start.get_rotated_to(angle, pos), self.end.get_rotated_to(angle, pos))

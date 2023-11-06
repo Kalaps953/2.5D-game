@@ -1,13 +1,13 @@
-import math
-import pygame as pg
 from config import *
 from classes.object import Pos, Line
 from classes.map import Map
 from classes.player import Player
+import math
+import pygame as pg
 
 pg.init()
 
-display = pg.display.set_mode([WIDTH, HEIGHT])
+display = pg.display.set_mode([WIDTH, HEIGHT], pg.FULLSCREEN)
 pg.mouse.set_cursor((8,8),(0,0),(0,0,0,0,0,0,0,0),(0,0,0,0,0,0,0,0))
 clock = pg.time.Clock()
 
@@ -32,14 +32,16 @@ lines = [Line(Pos(0, 0), Pos(250, 0)),
 map = Map(lines)
 pl = Player(Pos(25, 25))
 pl.angle += math.pi
-
+speed = 2
 motion = {'forward': False, 'backward': False}
 pg.mouse.set_pos([WIDTH // 2, 0])
 while run:
-    if clock.get_fps() != 0:
-        speed = 60 / clock.get_fps()
-        print(clock.get_fps())
     display.fill([255, 255, 255])
+    f = clock.get_fps()
+    if f != 0:
+        speed = 60 / f
+        text = FONT.render(f'FPS: {f}', True, (255, 0, 0))
+        display.blit(text, (0, 0))
     for i in pg.event.get():
         if i.type == pg.KEYDOWN:
             if i.key == pg.K_w:
@@ -57,7 +59,7 @@ while run:
         if i.type == pg.MOUSEMOTION:
             new_pos = pg.mouse.get_pos()[0]
             if new_pos != WIDTH // 2:
-                pl.angle += math.pi / 6000 * (new_pos - WIDTH // 2)
+                pl.angle += math.pi / 2 * ((new_pos - WIDTH / 2) / WIDTH)
                 pg.mouse.set_pos([WIDTH // 2, 0])
 
     if motion['forward'] and not motion['backward']:
