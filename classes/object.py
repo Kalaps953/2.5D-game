@@ -96,6 +96,9 @@ class Line:
         self.end = pos2
         self.color = color
         self.id = id
+        self.A = self.end.y - self.start.y
+        self.B = self.end.x - self.start.x
+        self.C = self.end.x * self.start.y - self.start.x * self.end.y
 
     def __str__(self):
         return f's= ({self.start});; e= ({self.end});'
@@ -110,7 +113,7 @@ class Line:
     def get_normalized(self):
         d = self.get_distance()
         if d != 0:
-            return (self.end - self.start) / self.get_distance()
+            return (self.end - self.start) / d
         return Pos(0, 0)
 
     def draw_on_map(self, display: pg.Surface):
@@ -124,21 +127,26 @@ class Line:
         if isinstance(other, Pos):
             return Line(self.start - other, self.end - other, self.id, self.color)
 
-    def collide(self, line, r=True):
-        if line.start < self.start < line.end or line.end < self.start < line.start or line.start < self.end < line.end or line.end < self.end < line.start:
-            angle = self.end.get_angle(self.start)
-            l1 = self.get_rotated_to(0, self.start)
-            li = line.get_rotated_on(-angle, self.start)
-            if li.start.y <= l1.start.y <= li.end.y or li.end.y <= l1.start.y <= li.start.y:
-                norm = li.get_normalized()
-                if norm.y != 0:
-                    k = (l1.start.y - li.start.y) * (norm.x / norm.y) + li.start.x
+    def collide(self, l):
+        assert isinstance(l, Line), 'Line.check_collide needs only input as Line'
+        n = l.A * self.B - self.A * l.B
+        if n != 0:
+            p = Pos((l.B * self.C - self.B * l.C) / n, (l.A * self.C - self.A * l.C) / n)
+
+            def ch(v, v1, v2):
+                if v1 < v2:
+                    if v1 <= v <= v2:
+                        return True
+                    return False
+                elif v1 > v2:
+                    if v1 >= v >= v2:
+                        return True
+                    return False
                 else:
-                    k = l1.start.y
-                if l1.start.x >= k >= l1.end.x or l1.end.x >= k >= l1.start.x:
-                    return Pos(k, l1.start.y).get_rotated_on(angle, self.start)
-        if r:
-            return line.collide(self, False)
+                    return True
+            if ch(p.x, self.start.x, self.end.x) and ch(p.x, l.start.x, l.end.x):
+                if ch(p.y, self.start.y, self.end.y) and ch(p.y, l.start.y, l.end.y):
+                    return p
         return False
 
     def get_rotated_on(self, angle: float, pos: Pos):

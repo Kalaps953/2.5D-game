@@ -5,7 +5,7 @@ import pygame as pg
 
 
 class Player:
-    def __init__(self, pos: Pos, angle: float = 0, fov: int = 120, dov: int = 255, aol: int = 100, dof: float = 10):
+    def __init__(self, pos: Pos, angle: float = 0, fov: int = 90, dov: int = 255, aol: int = 200, dof: float = 10):
         self._pos = pos
         # Угол камеры
         self._angle = angle
@@ -47,14 +47,14 @@ class Player:
 
     def get_lines(self):
         lines = []
-        for i in range(-self.aol // 2, self.aol // 2):
-            st = self.fov / self.aol
-            a = st * i
+        st = self.fov / self.aol
+        for i in range(self.aol):
+            a = st * (i - self.aol / 2)
             c = math.cos(a + self._angle)
             s = math.sin(a + self._angle)
             k = s / c
             lines.append(
-                Line(self._pos + Pos(0, k * c * self.dof), Pos(c * self.dov, s * self.dov) + self._pos,
+                Line(self._pos + Pos(0, k * c * self.dof), Pos(round(c * self.dov), round(s * self.dov)) + self._pos,
                      color=[0, 0, 255]))
         return lines
 
@@ -64,7 +64,7 @@ class Player:
 
     def draw(self, display: pg.Surface, map):
         x = 0
-        step = round(WIDTH / self.aol) + 1
+        step = WIDTH / self.aol
         for i in self.lines:
             max_distance = i.get_distance()
             da = 255 / max_distance
@@ -83,14 +83,16 @@ class Player:
                 for d in distances:
                     height = self.dof / d * (HEIGHT - self.dof)
                     clr = int(da * d)
-                    pg.draw.rect(display, [clr, clr, clr], [x, (HEIGHT - height) / 2, step, height])
+                    pg.draw.rect(display, [clr, clr, clr], [x, (HEIGHT - height) / 2, round(step), height])
             x += step
 
     def move(self, map, vector: Pos):
         an = (vector + self._pos).get_angle(self._pos)
 
-        check_l1 = Line(self._pos, self._pos + vector + Pos(math.cos(an) * self.dof * 1.42, math.sin(an) * self.dof * 1.42))
-        check_l2 = Line(self._pos, self._pos + Pos(math.cos(an + math.pi / 4) * self.dof * 1.42, math.sin(an + math.pi / 4) * self.dof * 1.42))
+        check_l1 = Line(self._pos, self._pos + vector + Pos(math.cos(an) * self.dof * 1.42,
+                                                            math.sin(an) * self.dof * 1.42))
+        check_l2 = Line(self._pos, self._pos + Pos(math.cos(an + math.pi / 4) * self.dof * 1.42,
+                                                   math.sin(an + math.pi / 4) * self.dof * 1.42))
         check_l3 = Line(self._pos, self._pos + Pos(math.cos(an - math.pi / 4) * self.dof * 1.42,
                                                    math.sin(an - math.pi / 4) * self.dof * 1.42))
         coll = False
